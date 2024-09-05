@@ -42,6 +42,14 @@ impl Linear {
                 .map(|_| rng.gen_range(-1_f32..1_f32))
                 .collect::<Vec<_>>(),
         );
+        // Init bias as uniform(-1, 1) if exists
+        if let Some(bias) = self.bias {
+            bias.set(
+                (0..bias.shape.n_elements().to_usize().unwrap())
+                    .map(|_| rng.gen_range(-1_f32..1_f32))
+                    .collect::<Vec<_>>(),
+            );
+        }
         self
     }
 }
@@ -81,7 +89,7 @@ mod tests {
         let batch = cx.tensor((2, 3)).set([1.0, 2.0, 3.0, 1.0, 2.0, 3.0]);
         let a = cx.tensor(3).set([1.0, 2.0, 3.0]);
 
-        let model = Linear::new(3, 4, false, &mut cx).initialize();
+        let model = Linear::new(3, 4, true, &mut cx).initialize();
         let mut b = model.forward(a).retrieve();
         let mut batch_out = model.forward(batch).retrieve();
 
